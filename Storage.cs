@@ -11,7 +11,6 @@ namespace Storage
 		public static Hashtable Load(){
 			if(!File.Exists(HashTableFileName)){
 				File.WriteAllText(HashTableFileName, "");
-			//	return new Hashtable();
 			}
 			string HashtableString = File.ReadAllText(HashTableFileName);
 			return Converters.HashtableFromString(HashtableString);
@@ -37,19 +36,15 @@ namespace Storage
 		//Convert Hashtable to string
 		public static string HashtableToString( Hashtable hashtable , bool show = false)
 		{
-			//string HashtableString = "{";
 			string HashtableString = "";
 			foreach(DictionaryEntry keyValues in hashtable)
 			{
-				//HashtableString += "{" + ( "\"" + keyValues.Key + "\"") + " : " + ( "\"" + keyValues.Value "\"" ) + "}" +  ",";
-				//string line = Encode((string)keyValues.Key) + ":" + Encode((string)keyValues.Value) + ",";
 				string line = Encode((string)keyValues.Key) + ":" + Encode((string)keyValues.Value) + "\n";
 				HashtableString += line;
 				if(show == true){
 					Console.WriteLine(line);
 				}
 			}
-			//return HashtableString.TrimEnd(',', ' ') + "}";
 			return HashtableString.TrimEnd('\n', ' ');
 		}
 
@@ -57,13 +52,10 @@ namespace Storage
 		public static Hashtable HashtableFromString( string HashtableString )
 		{
 			Hashtable hashtable = new Hashtable();
-			if(string.IsNullOrEmpty(HashtableString) || HashtableString == "{}"){
+			if(string.IsNullOrEmpty(HashtableString)){
 				return hashtable;
 			}
-			//HashtableString = HashtableString.Substring(1, HashtableString.Length-2);
-			//string[] keyvalues = HashtableString.Split(',');
 			string[] keyvalues = HashtableString.Split('\n');
-			Console.WriteLine("keyvalues.Length: "+keyvalues.Length);
 			if(keyvalues.Length>0){
 				for(int i = 0; i<keyvalues.Length; i++){
 					string[] key_value = keyvalues[i].Split(':');
