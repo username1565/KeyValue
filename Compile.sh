@@ -1,0 +1,1 @@
+csc /out:Program.exe *.cs
