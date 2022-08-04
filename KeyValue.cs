@@ -65,7 +65,7 @@ namespace Storage
 		//constructor
 		public KeyValue(){
 			//on initialize object, just initialize this
-			hashtable = Storage.Load(); //and load hashtable from storage
+			hashtable = Load(); //and load hashtable from storage
 		}
 		
 		public Hashtable hashtable = new Hashtable();
@@ -80,6 +80,8 @@ namespace Storage
 		//	Add( key, value, replace=false, show=false )
 		//	Remove( key, show=false )
 		//	Reset( show=false )
+		//	Load()
+		//	Save()
 		*/
 		
 		//	ShowAndReturn( value, show=false )
@@ -224,6 +226,11 @@ namespace Storage
 			catch{
 				return (bool)ShowAndReturn(false, show);
 			}
+		}
+		
+		//Load hashtable from storage
+		public Hashtable Load(){
+			return Storage.Load();
 		}
 		
 		//Save hashtable in storage
