@@ -7,6 +7,8 @@ namespace Storage
 {
 	public class KeyValue
 	{
+		public static bool UseSQLite3 = false; //or "true" to use
+		
 		public static void Main_(string[] args){
 			Test(args);	//run tests
 		}
@@ -65,8 +67,14 @@ namespace Storage
 
 		//constructor
 		public KeyValue(string[] args){
-			//on initialize object, just initialize this
-			new KeyValue(args[0], args[1], args[2], args[3]); //and load hashtable from storage
+			if(args.Length == 1){	//if filename only
+				UseSQLite3 = false;
+				new KeyValue(args[0]);
+			}
+			else{	//if HashTableName, KeyName, ValueName too
+				UseSQLite3 = true;
+				new KeyValue(args[0], args[1], args[2], args[3]); //and load hashtable from storage
+			}
 		}
 
 		//constructor
@@ -118,11 +126,16 @@ namespace Storage
 			bool show = false
 		)
 		{
-			int count = SQLite3.Count();
-			if(show == true){
-				Console.WriteLine("count: "+count);
+			if(UseSQLite3 == true){
+				int count = SQLite3.Count();
+				if(show == true){
+					Console.WriteLine("count: "+count);
+				}
+				return count;
 			}
-			return count;
+			else{
+				return (int)ShowAndReturn(hashtable.Count, show);
+			}
 		}
 		
 		//	Keys( show=false )
@@ -130,7 +143,13 @@ namespace Storage
 		public List<string> Keys(
 			bool show = false
 		){
-			List<string> result = SQLite3.Keys();
+			List<string> result = new List<string>();
+			if(UseSQLite3 == true){
+				result = SQLite3.Keys();
+			}
+			else{
+				result = hashtable.Keys.Cast<string>().ToList();
+			}
 			if(show){
 				foreach(string key in result){
 					Console.WriteLine("key: "+key);
@@ -145,7 +164,12 @@ namespace Storage
 				string key
 			,	bool show = false
 		){
-			return (bool)ShowAndReturn(SQLite3.ContainsKey(key), show);
+			if(UseSQLite3 == true){
+				return (bool)ShowAndReturn(SQLite3.ContainsKey(key), show);
+			}
+			else{
+				return (bool)ShowAndReturn(hashtable.ContainsKey(key), show);
+			}
 		}
 		
 		//	Contains( key , show=false )
@@ -213,12 +237,15 @@ namespace Storage
 				}
 			}
 			
-			//SQLite search
-			List<string> keys = SQLite3.SearchString(searchstring, caseSensetive);
-			foreach (string key in keys){
-				if(show == true){
-					Console.WriteLine("key: "+key);
-					FoundKeys.Add(key);
+			if(UseSQLite3 == true)
+			{
+				//SQLite search
+				List<string> keys = SQLite3.SearchString(searchstring, caseSensetive);
+				foreach (string key in keys){
+					if(show == true){
+						Console.WriteLine("key: "+key);
+						FoundKeys.Add(key);
+					}
 				}
 			}
 			return FoundKeys;
@@ -239,16 +266,23 @@ namespace Storage
 				){
 					return (bool)ShowAndReturn(false, show);
 				}
-
-				int result = SQLite3.Add(key, value, replace);
-				if(result == -1){//if not add - false
-					return (bool)ShowAndReturn(false, show);
+				
+				if(UseSQLite3 == true){
+					int result = SQLite3.Add(key, value, replace);
+					if(result == -1){//if not add - false
+						return (bool)ShowAndReturn(false, show);
+					}
+					CacheValue(key, value);
+					if(show == true){
+						Console.WriteLine("Add result: "+result);
+					}
+					return (bool)ShowAndReturn(true, show);
 				}
-				CacheValue(key, value);
-				if(show == true){
-					Console.WriteLine("Add result: "+result);
+				else{
+					hashtable[key] = value;
+					Save();
+					return (bool)ShowAndReturn(true, show);
 				}
-				return (bool)ShowAndReturn(true, show);
 			}
 			catch{
 				return (bool)ShowAndReturn(false, show);
@@ -262,9 +296,15 @@ namespace Storage
 			,	bool show = false
 		){
 			try{
-				SQLite3.Remove(key);
-				if(hashtable.ContainsKey(key)){
+				if(UseSQLite3 == true){
+					SQLite3.Remove(key);
+					if(hashtable.ContainsKey(key)){
+						hashtable.Remove(key);
+					}
+				}
+				else{
 					hashtable.Remove(key);
+					Save();
 				}
 				return (bool)ShowAndReturn(true, show);
 			}
@@ -281,7 +321,9 @@ namespace Storage
 		){
 			try{
 				hashtable = new Hashtable();
-				SQLite3.Reset();
+				if(UseSQLite3 == true){
+					SQLite3.Reset();
+				}
 				return (bool)ShowAndReturn(true, show);
 			}
 			catch{
@@ -296,22 +338,31 @@ namespace Storage
 			,	string KeyName = null
 			,	string ValueName = null
 		){
-			SQLite3.UseSQLite3 = true;
+			if(UseSQLite3 == true){
+				SQLite3.UseSQLite3 = true;
 
-			SQLite3.KeyValueTableName = KeyValueTableName;
-			SQLite3.KeyName = KeyName;
-			SQLite3.ValueName = ValueName;
-			
-			SQLite3.openSQLite3Db(DbFileName);
-			hashtable = new Hashtable();
-			return hashtable;
+				SQLite3.KeyValueTableName = KeyValueTableName;
+				SQLite3.KeyName = KeyName;
+				SQLite3.ValueName = ValueName;
+
+				SQLite3.openSQLite3Db(DbFileName);
+				hashtable = new Hashtable();
+				return hashtable;
+			}
+			else{
+				return Storage.Load(DbFileName);
+			}
 		}
 		
 		//Save hashtable in storage
 		public void Save(){
-			//SQLite3.Save(hashtable);
-			
+			if(UseSQLite3 == true){
+			//	SQLite3.Save(hashtable);
 			//Each change are already saved
+			}
+			else{
+				Storage.Save(hashtable);
+			}
 		}
 	}
 }
