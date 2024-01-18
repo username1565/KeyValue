@@ -8,12 +8,12 @@ namespace Storage
 	public class KeyValue
 	{
 		public static void Main_(string[] args){
-			Test();	//run tests
+			Test(args);	//run tests
 		}
 	
-		public static void Test(){
+		public static void Test(string[] args){
 			try{
-				KeyValue hashtable = new KeyValue("Hashtable.db3");	//create new hashtable
+				KeyValue hashtable = new KeyValue(args);	//create new hashtable
 				hashtable.Reset(true);
 
 				hashtable.Count(true);
@@ -64,9 +64,20 @@ namespace Storage
 		*/
 
 		//constructor
-		public KeyValue(string DbFileName){
+		public KeyValue(string[] args){
 			//on initialize object, just initialize this
-			hashtable = Load(DbFileName); //and load hashtable from storage
+			new KeyValue(args[0], args[1], args[2], args[3]); //and load hashtable from storage
+		}
+
+		//constructor
+		public KeyValue(
+				string DbFileName = null
+			,	string KeyValueTableName = null
+			,	string KeyName = null
+			,	string ValueName = null
+		){
+			//on initialize object, just initialize this
+			hashtable = Load(DbFileName, KeyValueTableName, KeyName, ValueName); //and load hashtable from storage
 		}
 		
 		private const int CacheLimit = 100000; // how many records to keep in memory (reduce DB read operations)
@@ -279,7 +290,18 @@ namespace Storage
 		}
 		
 		//Load hashtable from storage
-		public Hashtable Load(string DbFileName){
+		public Hashtable Load(
+				string DbFileName = null
+			,	string KeyValueTableName = null
+			,	string KeyName = null
+			,	string ValueName = null
+		){
+			SQLite3.UseSQLite3 = true;
+
+			SQLite3.KeyValueTableName = KeyValueTableName;
+			SQLite3.KeyName = KeyName;
+			SQLite3.ValueName = ValueName;
+			
 			SQLite3.openSQLite3Db(DbFileName);
 			hashtable = new Hashtable();
 			return hashtable;

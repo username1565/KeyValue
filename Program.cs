@@ -8,7 +8,7 @@ namespace Program
 		{
 			KeyValue.Main_(args);
 			
-			KeyValue table = new KeyValue("Hashtable.db3");
+			KeyValue table = new KeyValue(args);
 			table.Count(true);
 			table.Add("test", "test", true);
 			table.Count(true);
