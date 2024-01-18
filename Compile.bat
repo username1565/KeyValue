@@ -6,6 +6,7 @@ set program=Program
 
 %csc% /out:%program%.exe *.cs /reference:Mono.Data.Sqlite.dll /reference:sqlite3.dll /platform:x86
 
-%program%.exe
+::program.exe DBPathway HashTableName KeyName ValueName
+%program%.exe Hashtable.db3 KeyValue key value
 
 pause
