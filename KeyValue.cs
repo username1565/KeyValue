@@ -84,6 +84,15 @@ namespace Storage
 			,	string KeyName = null
 			,	string ValueName = null
 		){
+			Console.WriteLine("KeyValue: "+DbFileName+", "+KeyValueTableName+", "+KeyName+", "+ValueName);
+			if(String.IsNullOrEmpty(KeyValueTableName)){
+				UseSQLite3 = false;
+			}
+			else{
+				UseSQLite3 = true;
+			}
+			Console.WriteLine("UseSQLite3 = "+UseSQLite3);
+			
 			//on initialize object, just initialize this
 			hashtable = Load(DbFileName, KeyValueTableName, KeyName, ValueName); //and load hashtable from storage
 		}
@@ -347,7 +356,7 @@ namespace Storage
 
 				SQLite3.openSQLite3Db(DbFileName);
 				hashtable = new Hashtable();
-				return hashtable;
+				return hashtable; //return empty hashtable, to use direct SQL-requests for DB.
 			}
 			else{
 				return Storage.Load(DbFileName);
